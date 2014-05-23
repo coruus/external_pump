@@ -61,6 +61,7 @@ GRAMMAR:
            | EMPTY
        EXPRESSION has Python syntax.
 """
+from __future__ import print_function
 
 __author__ = 'wan@google.com (Zhanyong Wan)'
 
