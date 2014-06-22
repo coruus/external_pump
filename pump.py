@@ -70,22 +70,22 @@ import re
 import sys
 
 
-TOKEN_TABLE = [
-    (re.compile(r'\$var\s+'), '$var'),
-    (re.compile(r'\$elif\s+'), '$elif'),
-    (re.compile(r'\$else\s+'), '$else'),
-    (re.compile(r'\$for\s+'), '$for'),
-    (re.compile(r'\$if\s+'), '$if'),
-    (re.compile(r'\$range\s+'), '$range'),
-    (re.compile(r'\$[_A-Za-z]\w*'), '$id'),
-    (re.compile(r'\$\(\$\)'), '$($)'),
-    (re.compile(r'\$'), '$'),
-    (re.compile(r'\[\[\n?'), '[['),
-    (re.compile(r'\]\]\n?'), ']]'),
-    ]
+TOKEN_TABLE = \
+    [(re.compile(r'\$var\s+'), '$var'),
+     (re.compile(r'\$elif\s+'), '$elif'),
+     (re.compile(r'\$else\s+'), '$else'),
+     (re.compile(r'\$for\s+'), '$for'),
+     (re.compile(r'\$if\s+'), '$if'),
+     (re.compile(r'\$range\s+'), '$range'),
+     (re.compile(r'\$[_A-Za-z]\w*'), '$id'),
+     (re.compile(r'\$\(\$\)'), '$($)'),
+     (re.compile(r'\$'), '$'),
+     (re.compile(r'\[\[\n?'), '[['),
+     (re.compile(r'\]\]\n?'), ']]')]
 
 
 class Cursor(object):
+
   """Represents a position (line and column) in a text file."""
 
   def __init__(self, line=-1, column=-1):
@@ -99,8 +99,8 @@ class Cursor(object):
     return not self == rhs
 
   def __lt__(self, rhs):
-    return self.line < rhs.line or (
-        self.line == rhs.line and self.column < rhs.column)
+    return (self.line < rhs.line
+            or (self.line == rhs.line and self.column < rhs.column))
 
   def __le__(self, rhs):
     return self < rhs or self == rhs
@@ -136,6 +136,7 @@ def Eof():
 
 
 class Token(object):
+
   """Represents a token in a Pump source file."""
 
   def __init__(self, start=None, end=None, value=None, token_type=None):
@@ -389,17 +390,20 @@ def Tokenize(s):
 
 
 class CodeNode(object):
+
   def __init__(self, atomic_code_list=None):
     self.atomic_code = atomic_code_list
 
 
 class VarNode(object):
+
   def __init__(self, identifier=None, atomic_code=None):
     self.identifier = identifier
     self.atomic_code = atomic_code
 
 
 class RangeNode(object):
+
   def __init__(self, identifier=None, exp1=None, exp2=None):
     self.identifier = identifier
     self.exp1 = exp1
@@ -407,6 +411,7 @@ class RangeNode(object):
 
 
 class ForNode(object):
+
   def __init__(self, identifier=None, sep=None, code=None):
     self.identifier = identifier
     self.sep = sep
@@ -414,11 +419,13 @@ class ForNode(object):
 
 
 class ElseNode(object):
+
   def __init__(self, else_branch=None):
     self.else_branch = else_branch
 
 
 class IfNode(object):
+
   def __init__(self, exp=None, then_branch=None, else_branch=None):
     self.exp = exp
     self.then_branch = then_branch
@@ -426,16 +433,19 @@ class IfNode(object):
 
 
 class RawCodeNode(object):
+
   def __init__(self, token=None):
     self.raw_code = token
 
 
 class LiteralDollarNode(object):
+
   def __init__(self, token):
     self.token = token
 
 
 class ExpNode(object):
+
   def __init__(self, token, python_exp):
     self.token = token
     self.python_exp = python_exp
@@ -583,6 +593,7 @@ def ParseToAST(pump_src_text):
 
 
 class Env(object):
+
   def __init__(self):
     self.variables = []
     self.ranges = []
@@ -640,6 +651,7 @@ class Env(object):
 
 
 class Output(object):
+
   def __init__(self):
     self.string = ''
 
@@ -723,7 +735,7 @@ def WrapComment(line, output):
   else:
     output.append(before_comment)
     indent = len(before_comment) - len(before_comment.lstrip())
-  prefix = indent*' ' + '// '
+  prefix = indent * ' ' + '// '
   max_len = 80 - len(prefix)
   comment = line[loc + 2:].strip()
   segs = [seg for seg in re.split(r'(\w+\W*)', comment) if seg != '']
@@ -741,9 +753,10 @@ def WrapComment(line, output):
 
 def WrapCode(line, line_concat, output):
   indent = len(line) - len(line.lstrip())
-  prefix = indent*' '  # Prefix of the current line
-  max_len = 80 - indent - len(line_concat)  # Maximum length of the current line
-  new_prefix = prefix + 4*' '  # Prefix of a continuation line
+  prefix = indent * ' '  # Prefix of the current line
+  # Maximum length of the current line
+  max_len = 80 - indent - len(line_concat)
+  new_prefix = prefix + 4 * ' '  # Prefix of a continuation line
   new_max_len = max_len - 4  # Maximum length of a continuation line
   # Prefers to wrap a line after a ',' or ';'.
   segs = [seg for seg in re.split(r'([^,;]+[,;]?)', line.strip()) if seg != '']
@@ -786,7 +799,6 @@ def IsHeaderGuardIncludeOrOneLineIWYUPragma(line):
           re.match(r'^#include\s', line) or
           # Don't break IWYU pragmas, either; that causes iwyu.py problems.
           re.search(r'// IWYU pragma: ', line))
-
 
 
 def WrapLongLine(line, output):
